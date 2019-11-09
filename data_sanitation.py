@@ -54,9 +54,82 @@ def generate_clean_wave(unclean_wave, features):
     return clean_wave
 
 
-def handle_wave_edges():                                # Trailing zeros after recording (deliberate trailing edge?...)
+def identify_anomalies(clean_wave, median_multiplier):
+    ##########################
+    #
+    # Identifies header, footer, midpoints etc and erroneous (NOT TOGGLEBIT)
+    #
+    # clean_wave          :      list of discreet feature durations as appearing in wave
+    # median_multiplier   :      multiplied by abs. median to calculate anom. duration threshold
+    #
+    ##########################
+
+    # 0: data
+    # 1: anomaly
+
+    anomalies = [0]*len(clean_wave)                     # List to contain enumeration of status of features
+
+    f_threshold = 1
+    freqs = [clean_wave.count(i) for i in clean_wave]   # Each feature replaced with its own frequency in clean_wave
+    for i in range(len(freqs)):                         # Look through frequencies
+        if freqs[i] <= f_threshold:                     # f_threshold and below indicates anomaly
+            anomalies[i] = 1                            # mark that index as anomalous
+
+#################################################################################
+    median = sorted([abs(i) for i in clean_wave])[int(len(clean_wave)/2)]       #
+    for i in range(len(clean_wave)): # NEEDS REWORKING                          #
+        if abs(clean_wave[i]) > median*median_multiplier: # NEEDS REWORKING     #
+            anomalies[i] = 1 # NEEDS REWORKING                                  #
+#################################################################################
+
+    return anomalies
+
+
     pass
 
 
-def identify_anomalies():                               # Identifies header, footer, midpoints etc and erroneous
-    pass                                                # freq = 1,similar adjacent features?, regular position?
+def identify_border_features(clean_wave, anomalies):
+    ##########################
+    #
+    # Isolate headers and footers based on the position of anomalies in a clean wave, and from that extract data_wave
+    #
+    # clean_wave          :      list of discreet feature durations as appearing in wave
+    # median_multiplier   :      multiplied by abs. median to calculate anom. duration threshold
+    #
+    ##########################
+
+    data_wave = []
+    header = []
+    footer = []
+    for i, a in enumerate(anomalies):
+        if a == 1:                                      # If feature identified as anomaly
+            if i == 0:                                  # If adjacent to leading edge of wave
+                anomalies[i] = 2                        # Set as header
+            elif anomalies[i-1] == 2:                   # if adjacent to identified header
+                anomalies[i] = 2                        # Separated into separate elif to stop index error with i-1
+            else:
+                break                                   # Reached the edge of the header
+
+    for i, a in enumerate(reversed(anomalies)):
+        if a == 1:                                      # If feature identified as anomaly
+            if i == 0:                                  # If adjacent to leading edge of wave
+                anomalies[-i-1] = 3                     # Set as header, index needs to be reversed
+            elif anomalies[-i] == 3:                    # if adjacent to identified footer
+                anomalies[-i-1] = 3                     # Index reversed to select correct part of non-reversed anoms
+            else:
+                break                                   # Reached the end of the footer
+
+    for i,a in enumerate(anomalies):
+        if a == 0:                                      # Normal data feature
+            data_wave.append(clean_wave[i])             # Add to data_wave
+        elif a == 1:                                    # Non-header/footer anomaly
+            data_wave.append(clean_wave[i])             # FOR NOW JUST IGNORE OK HOW OFTEN WILL THIS HAPPEN ANYWAYS...
+        elif a == 2:                                    # Part of the header
+            header.append(clean_wave[i])
+        elif a == 3:                                    # Part of the footer
+            footer.append(clean_wave[i])
+
+    return data_wave, header, footer
+
+def handle_wave_edges():                                # Trailing zeros after recording (deliberate trailing edge?...)
+    pass

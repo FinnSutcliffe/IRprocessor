@@ -18,7 +18,7 @@ def main():
 
     # Data analysis
 
-    #encoding
+    #encoding/identify bits
     #datastream
     #togglebit
     #checksum
