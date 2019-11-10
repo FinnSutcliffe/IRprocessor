@@ -9,4 +9,5 @@ def read_wave():                    # Interfaces with RPI pins to read demodulat
 
 def parse_wave():                   # Takes binary and time arrays, generates array of continuous features
     # pauses -ve, pulses +ve
+    # cut off any trailing pause at the end
     pass

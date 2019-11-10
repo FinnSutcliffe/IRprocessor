@@ -75,17 +75,15 @@ def identify_anomalies(clean_wave, median_multiplier):
         if freqs[i] <= f_threshold:                     # f_threshold and below indicates anomaly
             anomalies[i] = 1                            # mark that index as anomalous
 
+
 #################################################################################
-    median = sorted([abs(i) for i in clean_wave])[int(len(clean_wave)/2)]       #
-    for i in range(len(clean_wave)): # NEEDS REWORKING                          #
-        if abs(clean_wave[i]) > median*median_multiplier: # NEEDS REWORKING     #
-            anomalies[i] = 1 # NEEDS REWORKING                                  #
+#    median = sorted([abs(i) for i in clean_wave])[int(len(clean_wave)/2)]      #
+ #   for i in range(len(clean_wave)): # NEEDS REWORKING                         #
+  #      if abs(clean_wave[i]) > median*median_multiplier: # NEEDS REWORKING    #
+   #         anomalies[i] = 1 # NEEDS REWORKING                                 #
 #################################################################################
 
     return anomalies
-
-
-    pass
 
 
 def identify_border_features(clean_wave, anomalies):
@@ -94,7 +92,7 @@ def identify_border_features(clean_wave, anomalies):
     # Isolate headers and footers based on the position of anomalies in a clean wave, and from that extract data_wave
     #
     # clean_wave          :      list of discreet feature durations as appearing in wave
-    # median_multiplier   :      multiplied by abs. median to calculate anom. duration threshold
+    # anomalies           :      list of enumerations marking features as anomalous or not
     #
     ##########################
 
@@ -131,5 +129,7 @@ def identify_border_features(clean_wave, anomalies):
 
     return data_wave, header, footer
 
+
 def handle_wave_edges():                                # Trailing zeros after recording (deliberate trailing edge?...)
+    # If first duration of footer != +ve, add a pause on the end of datawave?
     pass

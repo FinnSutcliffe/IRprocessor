@@ -37,5 +37,3 @@ def main():
     ## GUI
 
     #signal_diagnostics()?
-
-    pass
